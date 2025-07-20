@@ -4,16 +4,9 @@ import (
 	"bytes"
 	"strings"
 	"testing"
-
-	"github.com/go-cli-template/hello-world-cli/internal/domain/greeting"
-	"github.com/go-cli-template/hello-world-cli/internal/domain/language"
 )
 
 func TestHelloCommand(t *testing.T) {
-	// Set up services
-	langService := language.NewService()
-	greetingService := greeting.NewService(langService)
-
 	tests := []struct {
 		name       string
 		args       []string
@@ -39,7 +32,7 @@ func TestHelloCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cmd := NewCommand(greetingService)
+			cmd := NewCommand()
 			buf := new(bytes.Buffer)
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)

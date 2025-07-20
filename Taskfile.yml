@@ -54,7 +54,7 @@ tasks:
   watch:
     desc: Alternative to dev using go run
     cmds:
-      - watch -n 2 go run cmd/{{.ProjectName}}/main.go
+      - watch -n 2 go run cmd/hello-world-cli/main.go
 
   test:
     desc: Run all tests
@@ -151,7 +151,7 @@ tasks:
     desc: Install binary to $GOPATH/bin
     deps: [build]
     cmds:
-      - go install -ldflags "{{.LDFLAGS}}" ./cmd/{{.ProjectName}}
+      - go install -ldflags "{{.LDFLAGS}}" ./cmd/hello-world-cli
 
   uninstall:
     desc: Uninstall binary from $GOPATH/bin
@@ -168,19 +168,19 @@ tasks:
   release:build:darwin:
     desc: Build for macOS
     cmds:
-      - GOOS=darwin GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_darwin_amd64 cmd/{{.ProjectName}}/main.go
-      - GOOS=darwin GOARCH=arm64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_darwin_arm64 cmd/{{.ProjectName}}/main.go
+      - GOOS=darwin GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_darwin_amd64 cmd/hello-world-cli/main.go
+      - GOOS=darwin GOARCH=arm64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_darwin_arm64 cmd/hello-world-cli/main.go
 
   release:build:linux:
     desc: Build for Linux
     cmds:
-      - GOOS=linux GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_linux_amd64 cmd/{{.ProjectName}}/main.go
-      - GOOS=linux GOARCH=arm64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_linux_arm64 cmd/{{.ProjectName}}/main.go
+      - GOOS=linux GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_linux_amd64 cmd/hello-world-cli/main.go
+      - GOOS=linux GOARCH=arm64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_linux_arm64 cmd/hello-world-cli/main.go
 
   release:build:windows:
     desc: Build for Windows
     cmds:
-      - GOOS=windows GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_windows_amd64.exe cmd/{{.ProjectName}}/main.go
+      - GOOS=windows GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_windows_amd64.exe cmd/hello-world-cli/main.go
 
   setup:
     desc: Install dev tools

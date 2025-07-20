@@ -9,7 +9,7 @@ A simple hello world CLI demonstrating Go + Cobra with enterprise-ready structur
 
 ## Features
 
-- 🏗️ **Enterprise-ready directory structure** - Scalable architecture using domain-driven design
+- 🏗️ **Clean, simple structure** - Well-organized code that's easy to understand and extend
 - 🌍 **Internationalization** - Support for multiple languages (EN, ES, FR, DE, JA, ZH)
 - 📝 **Multiple output formats** - Plain text and JSON output
 - 🧪 **Comprehensive testing** - Unit tests with good coverage
@@ -98,7 +98,10 @@ task build
 task lint
 
 # Build for all platforms
-task build-all
+task release:build
+
+# Format, fix, and lint all code
+task fix
 ```
 
 ### Project Structure
@@ -110,11 +113,9 @@ task build-all
 │   │   ├── greet/          # Greet command
 │   │   ├── hello/          # Hello command
 │   │   └── version/        # Version command
-│   ├── domain/             # Business logic
-│   │   ├── greeting/       # Greeting service
-│   │   └── language/       # Language support
-│   └── shared/             # Shared utilities
+│   └── greeting/           # Core greeting logic
 ├── pkg/version/            # Public version package
+├── scripts/                # Utility scripts
 └── docs/                   # Documentation
 ```
 
@@ -125,21 +126,20 @@ This repository serves as a template for building Go CLI applications. To adapt 
 1. **Update module name** in `go.mod`
 2. **Replace "hello-world-cli"** throughout the codebase with your app name
 3. **Modify commands** in `internal/cli/`
-4. **Add your business logic** in `internal/domain/`
+4. **Add your business logic** in `internal/`
 5. **Update tests** accordingly
 
 See [CUSTOMIZE.md](docs/CUSTOMIZE.md) for detailed instructions.
 
 ## Architecture
 
-This CLI follows Domain-Driven Design principles:
+This CLI follows a clean, simple architecture:
 
-- **Commands** (`internal/cli/`) - Thin CLI layer that handles user interaction
-- **Domain** (`internal/domain/`) - Business logic separated by domain
-- **Infrastructure** (`internal/infrastructure/`) - External concerns (config, logging)
-- **Shared** (`internal/shared/`) - Common utilities
+- **Commands** (`internal/cli/`) - CLI command handlers using Cobra
+- **Core Logic** (`internal/greeting/`) - Business logic as simple, testable functions
+- **Public API** (`pkg/version/`) - Exported packages for external use
 
-This structure allows the application to scale from a simple CLI to a large enterprise application.
+This structure keeps the code organized and easy to understand while avoiding over-engineering.
 
 ## Contributing
 

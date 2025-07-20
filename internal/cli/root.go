@@ -7,8 +7,6 @@ import (
 	"github.com/go-cli-template/hello-world-cli/internal/cli/greet"
 	"github.com/go-cli-template/hello-world-cli/internal/cli/hello"
 	versioncmd "github.com/go-cli-template/hello-world-cli/internal/cli/version"
-	"github.com/go-cli-template/hello-world-cli/internal/domain/greeting"
-	"github.com/go-cli-template/hello-world-cli/internal/domain/language"
 	"github.com/go-cli-template/hello-world-cli/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -45,13 +43,9 @@ func Execute() error {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Initialize services (in a real app, this might use dependency injection)
-	languageService := language.NewService()
-	greetingService := greeting.NewService(languageService)
-
 	// Add commands
-	rootCmd.AddCommand(hello.NewCommand(greetingService))
-	rootCmd.AddCommand(greet.NewCommand(greetingService))
+	rootCmd.AddCommand(hello.NewCommand())
+	rootCmd.AddCommand(greet.NewCommand())
 	rootCmd.AddCommand(versioncmd.NewCommand())
 
 	// Persistent flags - global for all subcommands

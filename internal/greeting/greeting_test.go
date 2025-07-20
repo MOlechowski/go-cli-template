@@ -2,19 +2,13 @@ package greeting
 
 import (
 	"testing"
-
-	"github.com/go-cli-template/hello-world-cli/internal/domain/language"
 )
 
-func TestGenerateGreeting(t *testing.T) {
-	langService := language.NewService()
-	service := NewService(langService)
-
+func TestGenerate(t *testing.T) {
 	tests := []struct {
 		name    string
 		opts    Options
 		wantMsg string
-		wantErr bool
 	}{
 		{
 			name: "basic hello world",
@@ -68,26 +62,19 @@ func TestGenerateGreeting(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			greeting, err := service.GenerateGreeting(tt.opts)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GenerateGreeting() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			greeting := Generate(tt.opts)
 			if greeting.Message != tt.wantMsg {
-				t.Errorf("GenerateGreeting() message = %v, want %v", greeting.Message, tt.wantMsg)
+				t.Errorf("Generate() message = %v, want %v", greeting.Message, tt.wantMsg)
 			}
-			if greeting.Language != tt.opts.Language {
-				t.Errorf("GenerateGreeting() language = %v, want %v", greeting.Language, tt.opts.Language)
+			if tt.opts.Language != "unknown" && greeting.Language != tt.opts.Language {
+				t.Errorf("Generate() language = %v, want %v", greeting.Language, tt.opts.Language)
 			}
 		})
 	}
 }
 
 func TestGetSupportedLanguages(t *testing.T) {
-	langService := language.NewService()
-	service := NewService(langService)
-
-	langs := service.GetSupportedLanguages()
+	langs := GetSupportedLanguages()
 	if len(langs) == 0 {
 		t.Error("GetSupportedLanguages() returned empty slice")
 	}

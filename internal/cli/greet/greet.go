@@ -1,10 +1,10 @@
 package greet
 
 import (
+	"encoding/json"
 	"fmt"
 
-	"github.com/go-cli-template/hello-world-cli/internal/domain/greeting"
-	"github.com/go-cli-template/hello-world-cli/internal/shared/json"
+	"github.com/go-cli-template/hello-world-cli/internal/greeting"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ type Options struct {
 }
 
 // NewCommand creates the greet command
-func NewCommand(greetingService *greeting.Service) *cobra.Command {
+func NewCommand() *cobra.Command {
 	opts := &Options{}
 
 	cmd := &cobra.Command{
@@ -36,7 +36,7 @@ This command demonstrates personalized greetings with internationalization suppo
   # List supported languages
   hello-world-cli greet --list-languages`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runGreet(cmd, greetingService, opts)
+			return runGreet(cmd, opts)
 		},
 	}
 
@@ -50,10 +50,10 @@ This command demonstrates personalized greetings with internationalization suppo
 	return cmd
 }
 
-func runGreet(cmd *cobra.Command, greetingService *greeting.Service, opts *Options) error {
+func runGreet(cmd *cobra.Command, opts *Options) error {
 	// Handle list languages request
 	if opts.ListLangs {
-		langs := greetingService.GetSupportedLanguages()
+		langs := greeting.GetSupportedLanguages()
 		cmd.Println("Supported languages:")
 		for _, lang := range langs {
 			cmd.Printf("  %s\n", lang)
@@ -74,18 +74,15 @@ func runGreet(cmd *cobra.Command, greetingService *greeting.Service, opts *Optio
 	}
 
 	// Generate greeting
-	greet, err := greetingService.GenerateGreeting(greetOpts)
-	if err != nil {
-		return fmt.Errorf("failed to generate greeting: %w", err)
-	}
+	greet := greeting.Generate(greetOpts)
 
 	// Output based on format
 	if opts.JSONOutput {
-		output, err := json.PrettyPrintJSON(greet)
+		output, err := json.MarshalIndent(greet, "", "  ")
 		if err != nil {
 			return fmt.Errorf("failed to format JSON: %w", err)
 		}
-		cmd.Println(output)
+		cmd.Println(string(output))
 	} else {
 		cmd.Println(greet.Message)
 	}
