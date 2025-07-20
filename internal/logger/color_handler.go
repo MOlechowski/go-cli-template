@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -71,6 +72,40 @@ func (h *ColorHandler) Handle(_ context.Context, r slog.Record) error {
 	// Write message
 	if _, err := fmt.Fprintf(h.out, "%s", r.Message); err != nil {
 		return err
+	}
+
+	// Check if source information should be added
+	var sourceStr string
+	if h.opts.AddSource {
+		fs := runtime.CallersFrames([]uintptr{r.PC})
+		f, _ := fs.Next()
+		if f.File != "" {
+			// Apply ReplaceAttr if available
+			if h.opts.ReplaceAttr != nil {
+				source := &slog.Source{
+					Function: f.Function,
+					File:     f.File,
+					Line:     f.Line,
+				}
+				attr := slog.Attr{
+					Key:   slog.SourceKey,
+					Value: slog.AnyValue(source),
+				}
+				attr = h.opts.ReplaceAttr(nil, attr)
+				if source, ok := attr.Value.Any().(*slog.Source); ok && source.File != "" {
+					sourceStr = fmt.Sprintf(" %s%s:%d%s", colorGray, source.File, source.Line, colorReset)
+				}
+			} else {
+				sourceStr = fmt.Sprintf(" %s%s:%d%s", colorGray, f.File, f.Line, colorReset)
+			}
+		}
+	}
+
+	// Write source location after message if present
+	if sourceStr != "" {
+		if _, err := fmt.Fprintf(h.out, "%s", sourceStr); err != nil {
+			return err
+		}
 	}
 
 	// Write attributes

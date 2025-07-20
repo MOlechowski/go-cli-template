@@ -45,7 +45,7 @@ The logger can be configured through multiple methods (in order of precedence):
 ## Log Levels
 
 Available log levels (from most to least verbose):
-- `debug` - Detailed information for debugging
+- `debug` - Detailed information for debugging (automatically includes file:line info)
 - `info` - General informational messages (default)
 - `warn` - Warning messages
 - `error` - Error messages only
@@ -56,8 +56,13 @@ Available log levels (from most to least verbose):
 Colorized output for development with easy-to-read formatting:
 ```
 15:04:05 INFO  Processing user request name="Alice" language="en"
-15:04:05 DEBUG Generated greeting message="Hello, Alice!"
 15:04:05 ERROR Failed to save result error="permission denied"
+```
+
+When debug level is enabled, file and line information is automatically included:
+```
+15:04:05 DEBUG Generated greeting internal/cli/greet/greet.go:72 message="Hello, Alice!"
+15:04:05 DEBUG Command completed internal/cli/greet/greet.go:89 duration="125ms"
 ```
 
 ### JSON Format
@@ -65,6 +70,11 @@ Structured output for production and log aggregation:
 ```json
 {"time":"2024-01-20T15:04:05Z","level":"INFO","msg":"Processing user request","name":"Alice","language":"en"}
 {"time":"2024-01-20T15:04:05Z","level":"ERROR","msg":"Failed to save result","error":"permission denied"}
+```
+
+With debug level, source information is included in JSON as well:
+```json
+{"time":"2024-01-20T15:04:05Z","level":"DEBUG","source":{"file":"internal/cli/greet/greet.go","line":72},"msg":"Generated greeting","message":"Hello, Alice!"}
 ```
 
 ## Using the Logger

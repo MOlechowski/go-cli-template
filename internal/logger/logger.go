@@ -4,7 +4,10 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
+	"time"
 )
 
 // Logger is the interface that wraps basic logging methods.
@@ -21,10 +24,11 @@ type Logger interface {
 
 // Config holds logger configuration
 type Config struct {
-	Level   string // debug, info, warn, error
-	Format  string // text, json
-	Output  string // stdout, stderr
-	NoColor bool   // disable color in text format
+	Level     string // debug, info, warn, error
+	Format    string // text, json
+	Output    string // stdout, stderr
+	NoColor   bool   // disable color in text format
+	AddSource bool   // include file:line in output (auto-enabled for debug level)
 }
 
 // DefaultConfig returns default logger configuration
@@ -48,6 +52,8 @@ func New(cfg Config) Logger {
 	switch strings.ToLower(cfg.Level) {
 	case "debug":
 		level = slog.LevelDebug
+		// Auto-enable source location for debug level
+		cfg.AddSource = true
 	case "info":
 		level = slog.LevelInfo
 	case "warn", "warning":
@@ -58,8 +64,30 @@ func New(cfg Config) Logger {
 		level = slog.LevelInfo
 	}
 
+	// Get current working directory for relative paths
+	wd, _ := os.Getwd()
+
+	// ReplaceAttr to show relative paths instead of absolute
+	replaceAttr := func(groups []string, a slog.Attr) slog.Attr {
+		if a.Key == slog.SourceKey && cfg.AddSource {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				// Show relative path from working directory
+				if wd != "" {
+					if relPath, err := filepath.Rel(wd, source.File); err == nil {
+						source.File = relPath
+					}
+				}
+				// Remove function name to keep output concise
+				source.Function = ""
+			}
+		}
+		return a
+	}
+
 	opts := &slog.HandlerOptions{
-		Level: level,
+		Level:       level,
+		AddSource:   cfg.AddSource,
+		ReplaceAttr: replaceAttr,
 	}
 
 	var output *os.File
@@ -93,22 +121,36 @@ func New(cfg Config) Logger {
 
 // Debug logs a message at debug level
 func (l *slogLogger) Debug(msg string, fields ...any) {
-	l.logger.Debug(msg, fields...)
+	// Skip 2 frames: this method and the caller's location
+	l.logWithCaller(slog.LevelDebug, msg, fields...)
 }
 
 // Info logs a message at info level
 func (l *slogLogger) Info(msg string, fields ...any) {
-	l.logger.Info(msg, fields...)
+	l.logWithCaller(slog.LevelInfo, msg, fields...)
 }
 
 // Warn logs a message at warn level
 func (l *slogLogger) Warn(msg string, fields ...any) {
-	l.logger.Warn(msg, fields...)
+	l.logWithCaller(slog.LevelWarn, msg, fields...)
 }
 
 // Error logs a message at error level
 func (l *slogLogger) Error(msg string, fields ...any) {
-	l.logger.Error(msg, fields...)
+	l.logWithCaller(slog.LevelError, msg, fields...)
+}
+
+// logWithCaller logs with the correct caller information
+func (l *slogLogger) logWithCaller(level slog.Level, msg string, fields ...any) {
+	var pcs [1]uintptr
+	// Skip 3 frames to get the real caller:
+	// 1. runtime.Callers
+	// 2. this method (logWithCaller)
+	// 3. the wrapper method (Debug, Info, etc.)
+	runtime.Callers(3, pcs[:])
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	r.Add(fields...)
+	_ = l.logger.Handler().Handle(context.Background(), r)
 }
 
 // With returns a new logger with additional fields
@@ -165,13 +207,53 @@ func Default() Logger {
 }
 
 // Debug logs a message at debug level using the default logger
-func Debug(msg string, fields ...any) { defaultLogger.Debug(msg, fields...) }
+func Debug(msg string, fields ...any) {
+	if sl, ok := defaultLogger.(*slogLogger); ok {
+		var pcs [1]uintptr
+		runtime.Callers(2, pcs[:]) // Skip runtime.Callers and this function
+		r := slog.NewRecord(time.Now(), slog.LevelDebug, msg, pcs[0])
+		r.Add(fields...)
+		_ = sl.logger.Handler().Handle(context.Background(), r)
+	} else {
+		defaultLogger.Debug(msg, fields...)
+	}
+}
 
 // Info logs a message at info level using the default logger
-func Info(msg string, fields ...any) { defaultLogger.Info(msg, fields...) }
+func Info(msg string, fields ...any) {
+	if sl, ok := defaultLogger.(*slogLogger); ok {
+		var pcs [1]uintptr
+		runtime.Callers(2, pcs[:])
+		r := slog.NewRecord(time.Now(), slog.LevelInfo, msg, pcs[0])
+		r.Add(fields...)
+		_ = sl.logger.Handler().Handle(context.Background(), r)
+	} else {
+		defaultLogger.Info(msg, fields...)
+	}
+}
 
 // Warn logs a message at warn level using the default logger
-func Warn(msg string, fields ...any) { defaultLogger.Warn(msg, fields...) }
+func Warn(msg string, fields ...any) {
+	if sl, ok := defaultLogger.(*slogLogger); ok {
+		var pcs [1]uintptr
+		runtime.Callers(2, pcs[:])
+		r := slog.NewRecord(time.Now(), slog.LevelWarn, msg, pcs[0])
+		r.Add(fields...)
+		_ = sl.logger.Handler().Handle(context.Background(), r)
+	} else {
+		defaultLogger.Warn(msg, fields...)
+	}
+}
 
 // Error logs a message at error level using the default logger
-func Error(msg string, fields ...any) { defaultLogger.Error(msg, fields...) }
+func Error(msg string, fields ...any) {
+	if sl, ok := defaultLogger.(*slogLogger); ok {
+		var pcs [1]uintptr
+		runtime.Callers(2, pcs[:])
+		r := slog.NewRecord(time.Now(), slog.LevelError, msg, pcs[0])
+		r.Add(fields...)
+		_ = sl.logger.Handler().Handle(context.Background(), r)
+	} else {
+		defaultLogger.Error(msg, fields...)
+	}
+}
