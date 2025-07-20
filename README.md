@@ -1,7 +1,7 @@
 # Hello World CLI
 
 [![CI](https://github.com/MOlechowski/go-cli-template/actions/workflows/ci.yml/badge.svg)](https://github.com/MOlechowski/go-cli-template/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/go-cli-template/hello-world-cli)](https://goreportcard.com/report/github.com/go-cli-template/hello-world-cli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/MOlechowski/go-cli-template)](https://goreportcard.com/report/github.com/MOlechowski/go-cli-template)
 [![Go Reference](https://pkg.go.dev/badge/github.com/go-cli-template/hello-world-cli.svg)](https://pkg.go.dev/github.com/go-cli-template/hello-world-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
