@@ -1,0 +1,46 @@
+# {{.ProjectName}} Configuration File
+
+# Application settings
+app:
+  name: {{.ProjectName}}
+  version: 1.0.0
+  environment: development
+
+# Logging configuration
+logging:
+  level: info  # debug, info, warn, error
+  format: json # json, text
+  output: stdout # stdout, stderr, file
+  # file: ./logs/{{.ProjectName}}.log
+
+# Database configuration (if needed)
+# database:
+#   host: localhost
+#   port: 5432
+#   user: {{.ProjectName}}
+#   password: changeme
+#   name: {{.ProjectName}}
+#   ssl_mode: disable
+#   max_open_conns: 25
+#   max_idle_conns: 5
+#   conn_max_lifetime: 5m
+
+# HTTP client configuration (if needed)
+# http:
+#   timeout: 30s
+#   retry_count: 3
+#   retry_wait: 1s
+#   user_agent: {{.ProjectName}}/1.0.0
+
+# Server configuration (if running as service)
+# server:
+#   host: 0.0.0.0
+#   port: 8080
+#   read_timeout: 15s
+#   write_timeout: 15s
+#   shutdown_timeout: 30s
+
+# Feature toggles
+# features:
+#   new_feature: false
+#   experimental: false

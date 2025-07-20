@@ -222,6 +222,26 @@ task build VERSION=1.0.0
 - Review dependencies regularly
 - Enable GitHub security alerts
 
+### Dependency Management
+- **Dependabot** is pre-configured to check for updates weekly
+- Automated PRs will be created for outdated dependencies
+- PRs are labeled with "dependencies" and "automated"
+- Customize `.github/dependabot.yml` as needed:
+  ```yaml
+  # Example: Check daily instead of weekly
+  schedule:
+    interval: "daily"
+  
+  # Example: Assign PRs to team members
+  assignees:
+    - "your-username"
+  
+  # Example: Ignore specific dependencies
+  ignore:
+    - dependency-name: "github.com/example/package"
+      versions: ["1.x"]
+  ```
+
 ### Releases
 - Use semantic versioning
 - Tag releases properly: `git tag v1.0.0`
