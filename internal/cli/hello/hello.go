@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-cli-template/hello-world-cli/internal/greeting"
+	"github.com/go-cli-template/hello-world-cli/internal/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -45,6 +46,14 @@ This command demonstrates a simple greeting without personalization.`,
 }
 
 func runHello(cmd *cobra.Command, opts *Options) error {
+	log := logger.FromContext(cmd.Context())
+
+	// Log command execution
+	log.Debug("executing hello command",
+		"emoji", opts.IncludeEmoji,
+		"json", opts.JSONOutput,
+	)
+
 	// Create greeting options
 	greetOpts := greeting.Options{
 		Language:     "en",
@@ -53,11 +62,13 @@ func runHello(cmd *cobra.Command, opts *Options) error {
 
 	// Generate greeting
 	greet := greeting.Generate(greetOpts)
+	log.Debug("generated greeting", "message", greet.Message)
 
 	// Output based on format
 	if opts.JSONOutput {
 		output, err := json.MarshalIndent(greet, "", "  ")
 		if err != nil {
+			log.Error("failed to format JSON", "error", err)
 			return fmt.Errorf("failed to format JSON: %w", err)
 		}
 		cmd.Println(string(output))

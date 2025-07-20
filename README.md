@@ -10,6 +10,7 @@ A simple hello world CLI demonstrating Go + Cobra with enterprise-ready structur
 ## Features
 
 - 🏗️ **Clean, simple structure** - Well-organized code that's easy to understand and extend
+- 📊 **Structured logging** - Built-in logging with slog (debug, info, warn, error levels)
 - 🌍 **Internationalization** - Support for multiple languages (EN, ES, FR, DE, JA, ZH)
 - 📝 **Multiple output formats** - Plain text and JSON output
 - 🧪 **Comprehensive testing** - Unit tests with good coverage
@@ -53,6 +54,12 @@ hello-world-cli hello --json
 
 # List supported languages
 hello-world-cli greet --list-languages
+
+# Enable debug logging
+hello-world-cli hello --debug
+
+# Use JSON logging format
+hello-world-cli greet --name Alice --log-format=json
 ```
 
 ### Examples
@@ -137,9 +144,12 @@ This CLI follows a clean, simple architecture:
 
 - **Commands** (`internal/cli/`) - CLI command handlers using Cobra
 - **Core Logic** (`internal/greeting/`) - Business logic as simple, testable functions
+- **Logger** (`internal/logger/`) - Flexible logging system with multiple outputs
 - **Public API** (`pkg/version/`) - Exported packages for external use
 
 This structure keeps the code organized and easy to understand while avoiding over-engineering.
+
+See [docs/LOGGING.md](docs/LOGGING.md) for detailed logging documentation.
 
 ## Contributing
 
