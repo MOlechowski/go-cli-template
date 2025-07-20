@@ -17,6 +17,12 @@ tasks:
     cmds:
       - task --list
 
+  ci:
+    desc: Run all CI checks (format, lint, test)
+    cmds:
+      - task: fix
+      - task: test
+
   build:
     desc: Build the binary
     cmds:
@@ -78,6 +84,12 @@ tasks:
     cmds:
       - golangci-lint run --timeout=5m
 
+  lint:fix:
+    desc: Run linter with auto-fix
+    deps: [install-tools]
+    cmds:
+      - golangci-lint run --fix --timeout=5m
+
   fmt:
     desc: Format all Go code
     cmds:
@@ -95,6 +107,20 @@ tasks:
       - task: test
       - task: lint
       - task: vet
+
+  fix:
+    desc: Format, fix, and lint all code
+    deps: [install-tools]
+    cmds:
+      - echo "🔧 Formatting code..."
+      - go fmt ./...
+      - gofumpt -w .
+      - goimports -w .
+      - echo "🔧 Running auto-fix..."
+      - golangci-lint run --fix --timeout=5m
+      - echo "🔍 Running final lint check..."
+      - golangci-lint run --timeout=5m
+      - echo "✅ Done! Check output above for any remaining issues."
 
   clean:
     desc: Clean build artifacts
