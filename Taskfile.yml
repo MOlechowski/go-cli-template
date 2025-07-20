@@ -9,8 +9,7 @@ vars:
   LDFLAGS: -X github.com/go-cli-template/hello-world-cli/pkg/version.Version={{.VERSION}} -X github.com/go-cli-template/hello-world-cli/pkg/version.BuildTime={{.BUILD_TIME}}
   GOBASE:
     sh: pwd
-  GOFILES:
-    sh: find . -type f -name '*.go' -not -path "./vendor/*"
+  # GOFILES variable removed - not used and not Windows-compatible
 
 tasks:
   default:
