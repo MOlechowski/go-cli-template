@@ -6,7 +6,12 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/{{.GitHubUsername}}/{{.ProjectName}}/internal/version"
+	"github.com/go-cli-template/hello-world-cli/internal/cli/greet"
+	"github.com/go-cli-template/hello-world-cli/internal/cli/hello"
+	versioncmd "github.com/go-cli-template/hello-world-cli/internal/cli/version"
+	"github.com/go-cli-template/hello-world-cli/internal/domain/greeting"
+	"github.com/go-cli-template/hello-world-cli/internal/domain/language"
+	"github.com/go-cli-template/hello-world-cli/pkg/version"
 )
 
 var (
@@ -14,15 +19,21 @@ var (
 	verbose bool
 )
 
+// TODO: Replace "hello-world-cli" with your application name throughout this file
+
 var rootCmd = &cobra.Command{
-	Use:   "{{.ProjectName}}",
-	Short: "{{.ShortDescription}}",
-	Long: `{{.LongDescription}}`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// RunE: func(cmd *cobra.Command, args []string) error {
-	// 	return cmd.Help()
-	// },
+	Use:   "hello-world-cli",
+	Short: "A simple hello world CLI demonstrating Go + Cobra",
+	Long: `Hello World CLI is a demonstration of building a well-structured
+command-line application in Go using the Cobra framework.
+
+This CLI showcases:
+- Enterprise-ready directory structure
+- Domain-driven design principles
+- Multiple commands with sub-commands
+- Internationalization support
+- JSON output formatting
+- Comprehensive testing approach`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -34,8 +45,17 @@ func Execute() error {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	// Initialize services (in a real app, this might use dependency injection)
+	languageService := language.NewService()
+	greetingService := greeting.NewService(languageService)
+
+	// Add commands
+	rootCmd.AddCommand(hello.NewCommand(greetingService))
+	rootCmd.AddCommand(greet.NewCommand(greetingService))
+	rootCmd.AddCommand(versioncmd.NewCommand())
+
 	// Persistent flags - global for all subcommands
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.{{.ProjectName}}.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.hello-world-cli.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 
 	// Bind flags to viper
@@ -55,12 +75,14 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".{{.ProjectName}}" (without extension).
+		// Search config in home directory
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".{{.ProjectName}}")
+		viper.SetConfigName(".hello-world-cli") // TODO: Replace with your app name
 	}
 
+	// Set environment variable prefix
+	viper.SetEnvPrefix("HELLO_WORLD_CLI") // TODO: Replace with your app name in uppercase
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.

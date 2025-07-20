@@ -1,3 +1,5 @@
+// Package version provides version information for the application.
+// This package can be imported by external tools if needed.
 package version
 
 import (

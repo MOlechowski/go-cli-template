@@ -1,12 +1,12 @@
 version: '3'
 
 vars:
-  BINARY_NAME: '{{.ProjectName}}'
+  BINARY_NAME: 'hello-world-cli'
   VERSION:
     sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
   BUILD_TIME:
     sh: date -u '+%Y-%m-%d_%H:%M:%S'
-  LDFLAGS: -X github.com/{{.GitHubUsername}}/{{.ProjectName}}/internal/version.Version={{.VERSION}} -X github.com/{{.GitHubUsername}}/{{.ProjectName}}/internal/version.BuildTime={{.BUILD_TIME}}
+  LDFLAGS: -X github.com/go-cli-template/hello-world-cli/pkg/version.Version={{.VERSION}} -X github.com/go-cli-template/hello-world-cli/pkg/version.BuildTime={{.BUILD_TIME}}
   GOBASE:
     sh: pwd
   GOFILES:
@@ -21,9 +21,9 @@ tasks:
   build:
     desc: Build the binary
     cmds:
-      - go build -ldflags "{{.LDFLAGS}}" -o bin/{{.BINARY_NAME}} cmd/{{.ProjectName}}/main.go
+      - go build -ldflags "{{.LDFLAGS}}" -o bin/{{.BINARY_NAME}} cmd/hello-world-cli/main.go
     sources:
-      - cmd/{{.ProjectName}}/**/*.go
+      - cmd/hello-world-cli/**/*.go
       - internal/**/*.go
       - pkg/**/*.go
     generates:
@@ -32,7 +32,7 @@ tasks:
   build:dev:
     desc: Build with debug symbols
     cmds:
-      - go build -gcflags="all=-N -l" -ldflags "{{.LDFLAGS}}" -o bin/{{.BINARY_NAME}} cmd/{{.ProjectName}}/main.go
+      - go build -gcflags="all=-N -l" -ldflags "{{.LDFLAGS}}" -o bin/{{.BINARY_NAME}} cmd/hello-world-cli/main.go
 
   run:
     desc: Build and run
@@ -166,7 +166,7 @@ tasks:
     desc: Install development tools
     cmds:
       - echo "Installing development tools..."
-      - go install github.com/cosmtrek/air@latest
+      - go install github.com/air-verse/air@latest
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
       - go install mvdan.cc/gofumpt@latest
       - go install golang.org/x/tools/cmd/godoc@latest

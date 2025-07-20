@@ -1,209 +1,149 @@
-# {{.ProjectName}}
+# Hello World CLI
 
-{{.ShortDescription}}
+A simple hello world CLI demonstrating Go + Cobra with enterprise-ready structure.
+
+## Features
+
+- 🏗️ **Enterprise-ready directory structure** - Scalable architecture using domain-driven design
+- 🌍 **Internationalization** - Support for multiple languages (EN, ES, FR, DE, JA, ZH)
+- 📝 **Multiple output formats** - Plain text and JSON output
+- 🧪 **Comprehensive testing** - Unit tests with good coverage
+- 🔧 **Modern tooling** - Task automation, hot reload, and CI/CD
 
 ## Installation
 
 ### Using Go
 
 ```bash
-go install github.com/{{.GitHubUsername}}/{{.ProjectName}}@latest
+go install github.com/go-cli-template/hello-world-cli@latest
 ```
-
-### Download Binary
-
-Download the latest release from the [releases page](https://github.com/{{.GitHubUsername}}/{{.ProjectName}}/releases).
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/{{.GitHubUsername}}/{{.ProjectName}}.git
-cd {{.ProjectName}}
+git clone https://github.com/go-cli-template/hello-world-cli.git
+cd hello-world-cli
 task build
 ```
 
 ## Usage
 
+### Basic Commands
+
 ```bash
-{{.ProjectName}} [command] [flags]
+# Simple hello world
+hello-world-cli hello
+
+# Hello with emoji
+hello-world-cli hello --emoji
+
+# Personalized greeting
+hello-world-cli greet --name Alice
+
+# Greeting in Spanish
+hello-world-cli greet --name Carlos --lang es
+
+# JSON output
+hello-world-cli hello --json
+
+# List supported languages
+hello-world-cli greet --list-languages
 ```
-
-### Commands
-
-- `version` - Display version information
-- `example` - Example command (customize or remove)
-- `help` - Display help for any command
-
-### Global Flags
-
-- `--config string` - Config file (default is $HOME/.{{.ProjectName}}.yaml)
-- `-v, --verbose` - Enable verbose output
-- `-h, --help` - Display help
 
 ### Examples
 
 ```bash
-# Display version
-{{.ProjectName}} version
+$ hello-world-cli hello
+Hello, World!
 
-# Run example command
-{{.ProjectName}} example --flag="value"
+$ hello-world-cli hello --emoji
+👋 Hello, World!
 
-# Use custom config
-{{.ProjectName}} --config=/path/to/config.yaml example
+$ hello-world-cli greet --name Alice --lang fr
+Bonjour, Alice!
+
+$ hello-world-cli hello --json
+{
+  "message": "Hello, World!",
+  "language": "en",
+  "timestamp": "2024-01-20T10:00:00Z"
+}
 ```
 
 ## Development
 
-This project uses [Task](https://taskfile.dev/) for build automation.
-
 ### Prerequisites
 
 - Go 1.21 or later
-- Task (see [installation instructions](https://taskfile.dev/installation/))
+- Task (see [installation](https://taskfile.dev/installation/))
 
 ### Common Tasks
 
 ```bash
-# Run the application
-task run -- [args]
-
 # Run with hot reload
 task dev
 
 # Run tests
 task test
 
+# Build binary
+task build
+
 # Run linter
 task lint
 
-# Build for current platform
-task build
-
 # Build for all platforms
 task build-all
-
-# Create release
-task release
 ```
 
 ### Project Structure
 
 ```
-.
-├── cmd/
-│   └── {{.ProjectName}}/
-│       └── main.go          # Application entry point
-├── internal/
+├── cmd/hello-world-cli/      # Application entry point
+├── internal/                 # Private application code
 │   ├── cli/                 # CLI commands
-│   │   ├── root.go         # Root command
-│   │   ├── version.go      # Version command
-│   │   └── example.go      # Example command
-│   └── version/            # Version information
-│       └── version.go
-├── .github/                # GitHub Actions workflows
-├── Taskfile.yml           # Task automation
-├── go.mod                 # Go module definition
-└── README.md             # This file
+│   │   ├── greet/          # Greet command
+│   │   ├── hello/          # Hello command
+│   │   └── version/        # Version command
+│   ├── domain/             # Business logic
+│   │   ├── greeting/       # Greeting service
+│   │   └── language/       # Language support
+│   └── shared/             # Shared utilities
+├── pkg/version/            # Public version package
+└── docs/                   # Documentation
 ```
 
-### Adding a New Command
+## Customizing This Template
 
-1. Create a new file in `internal/cli/`:
+This repository serves as a template for building Go CLI applications. To adapt it for your needs:
 
-```go
-package cli
+1. **Update module name** in `go.mod`
+2. **Replace "hello-world-cli"** throughout the codebase with your app name
+3. **Modify commands** in `internal/cli/`
+4. **Add your business logic** in `internal/domain/`
+5. **Update tests** accordingly
 
-import (
-    "github.com/spf13/cobra"
-)
+See [CUSTOMIZE.md](docs/CUSTOMIZE.md) for detailed instructions.
 
-var myCmd = &cobra.Command{
-    Use:   "mycommand",
-    Short: "Brief description",
-    Long:  `Detailed description`,
-    RunE: func(cmd *cobra.Command, args []string) error {
-        // Implementation
-        return nil
-    },
-}
+## Architecture
 
-func init() {
-    rootCmd.AddCommand(myCmd)
-    // Add flags
-    myCmd.Flags().StringP("flag", "f", "", "Flag description")
-}
-```
+This CLI follows Domain-Driven Design principles:
 
-2. The command will be automatically available when you rebuild.
+- **Commands** (`internal/cli/`) - Thin CLI layer that handles user interaction
+- **Domain** (`internal/domain/`) - Business logic separated by domain
+- **Infrastructure** (`internal/infrastructure/`) - External concerns (config, logging)
+- **Shared** (`internal/shared/`) - Common utilities
 
-## Configuration
-
-{{.ProjectName}} supports configuration via:
-
-1. Command-line flags (highest priority)
-2. Environment variables
-3. Configuration file
-4. Default values (lowest priority)
-
-### Configuration File
-
-Create a config file at `~/.{{.ProjectName}}.yaml`:
-
-```yaml
-# Example configuration
-verbose: true
-# Add your configuration options here
-```
-
-### Environment Variables
-
-All configuration options can be set via environment variables. The pattern is:
-- Prefix with your project name in uppercase
-- Replace dots with underscores
-
-Example:
-```bash
-export {{.PROJECTNAME}}_VERBOSE=true
-```
+This structure allows the application to scale from a simple CLI to a large enterprise application.
 
 ## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Development Standards
-
-- Write tests for new functionality
-- Ensure all tests pass (`task test`)
-- Run linter and fix issues (`task lint`)
-- Update documentation as needed
-
 ## License
 
-[Choose a license and add it here]
-
-## Using This Template
-
-This repository is a GitHub template. To use it:
-
-1. Click "Use this template" on GitHub
-2. Clone your new repository
-3. Run the initialization script:
-   ```bash
-   ./scripts/init-template.sh
-   ```
-4. Follow the prompts to customize the template
-5. Start building your CLI!
-
-### Template Placeholders
-
-The following placeholders should be replaced:
-- `{{.ProjectName}}` - Your project name (e.g., `mycli`)
-- `{{.GitHubUsername}}` - Your GitHub username
-- `{{.ShortDescription}}` - Brief project description
-- `{{.LongDescription}}` - Detailed project description
-- `{{.PROJECTNAME}}` - Uppercase project name for env vars
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

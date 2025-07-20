@@ -57,8 +57,8 @@ debug
 __debug_bin*
 
 # Local configuration
-.{{.ProjectName}}.yaml
-.{{.ProjectName}}.yml
+.hello-world-cli.yaml
+.hello-world-cli.yml
 
 # Temporary files
 *.tmp
