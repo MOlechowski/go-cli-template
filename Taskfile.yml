@@ -1,0 +1,178 @@
+version: '3'
+
+vars:
+  BINARY_NAME: '{{.ProjectName}}'
+  VERSION:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
+  BUILD_TIME:
+    sh: date -u '+%Y-%m-%d_%H:%M:%S'
+  LDFLAGS: -X github.com/{{.GitHubUsername}}/{{.ProjectName}}/internal/version.Version={{.VERSION}} -X github.com/{{.GitHubUsername}}/{{.ProjectName}}/internal/version.BuildTime={{.BUILD_TIME}}
+  GOBASE:
+    sh: pwd
+  GOFILES:
+    sh: find . -type f -name '*.go' -not -path "./vendor/*"
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build the binary
+    cmds:
+      - go build -ldflags "{{.LDFLAGS}}" -o bin/{{.BINARY_NAME}} cmd/{{.ProjectName}}/main.go
+    sources:
+      - cmd/{{.ProjectName}}/**/*.go
+      - internal/**/*.go
+      - pkg/**/*.go
+    generates:
+      - bin/{{.BINARY_NAME}}
+
+  build:dev:
+    desc: Build with debug symbols
+    cmds:
+      - go build -gcflags="all=-N -l" -ldflags "{{.LDFLAGS}}" -o bin/{{.BINARY_NAME}} cmd/{{.ProjectName}}/main.go
+
+  run:
+    desc: Build and run
+    deps: [build]
+    cmds:
+      - ./bin/{{.BINARY_NAME}} {{.CLI_ARGS}}
+
+  dev:
+    desc: Run with hot reload (requires air)
+    deps: [install-tools]
+    cmds:
+      - air
+
+  watch:
+    desc: Alternative to dev using go run
+    cmds:
+      - watch -n 2 go run cmd/{{.ProjectName}}/main.go
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test -v ./...
+
+  test:short:
+    desc: Run tests in short mode
+    cmds:
+      - go test -short -v ./...
+
+  test:coverage:
+    desc: Run tests with coverage
+    cmds:
+      - go test -v -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "Coverage report generated at coverage.html"
+
+  test:integration:
+    desc: Run integration tests
+    cmds:
+      - go test -v ./test/integration/... -tags=integration
+
+  lint:
+    desc: Run linter
+    deps: [install-tools]
+    cmds:
+      - golangci-lint run
+
+  fmt:
+    desc: Format all Go code
+    cmds:
+      - go fmt ./...
+      - gofumpt -l -w .
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  check:
+    desc: Run all checks (test, lint, vet)
+    cmds:
+      - task: test
+      - task: lint
+      - task: vet
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf bin/
+      - rm -rf dist/
+      - rm -f coverage.out coverage.html
+      - go clean -cache
+
+  deps:
+    desc: Download and tidy dependencies
+    cmds:
+      - go mod download
+      - go mod tidy
+
+  deps:update:
+    desc: Update all dependencies
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
+  deps:graph:
+    desc: Show dependency graph
+    cmds:
+      - go mod graph
+
+  install:
+    desc: Install binary to $GOPATH/bin
+    deps: [build]
+    cmds:
+      - go install -ldflags "{{.LDFLAGS}}" ./cmd/{{.ProjectName}}
+
+  uninstall:
+    desc: Uninstall binary from $GOPATH/bin
+    cmds:
+      - rm -f $GOPATH/bin/{{.BINARY_NAME}}
+
+  release:build:
+    desc: Build for all platforms
+    cmds:
+      - task: release:build:darwin
+      - task: release:build:linux
+      - task: release:build:windows
+
+  release:build:darwin:
+    desc: Build for macOS
+    cmds:
+      - GOOS=darwin GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_darwin_amd64 cmd/{{.ProjectName}}/main.go
+      - GOOS=darwin GOARCH=arm64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_darwin_arm64 cmd/{{.ProjectName}}/main.go
+
+  release:build:linux:
+    desc: Build for Linux
+    cmds:
+      - GOOS=linux GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_linux_amd64 cmd/{{.ProjectName}}/main.go
+      - GOOS=linux GOARCH=arm64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_linux_arm64 cmd/{{.ProjectName}}/main.go
+
+  release:build:windows:
+    desc: Build for Windows
+    cmds:
+      - GOOS=windows GOARCH=amd64 go build -ldflags "{{.LDFLAGS}}" -o dist/{{.BINARY_NAME}}_windows_amd64.exe cmd/{{.ProjectName}}/main.go
+
+  setup:
+    desc: Install dev tools
+    cmds:
+      - task: install-tools
+
+  install-tools:
+    desc: Install development tools
+    cmds:
+      - echo "Installing development tools..."
+      - go install github.com/cosmtrek/air@latest
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install mvdan.cc/gofumpt@latest
+      - go install golang.org/x/tools/cmd/godoc@latest
+      - echo "Tools installed successfully"
+
+  help:
+    desc: Show help
+    cmds:
+      - task --list
