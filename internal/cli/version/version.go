@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/go-cli-template/hello-world-cli/pkg/version"
+	"github.com/spf13/cobra"
 )
 
 // Options holds command options

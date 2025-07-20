@@ -76,7 +76,7 @@ tasks:
     desc: Run linter
     deps: [install-tools]
     cmds:
-      - golangci-lint run
+      - golangci-lint run --timeout=5m
 
   fmt:
     desc: Format all Go code

@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/go-cli-template/hello-world-cli/internal/cli/greet"
 	"github.com/go-cli-template/hello-world-cli/internal/cli/hello"
 	versioncmd "github.com/go-cli-template/hello-world-cli/internal/cli/version"
 	"github.com/go-cli-template/hello-world-cli/internal/domain/greeting"
 	"github.com/go-cli-template/hello-world-cli/internal/domain/language"
 	"github.com/go-cli-template/hello-world-cli/pkg/version"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -85,7 +85,7 @@ func initConfig() {
 
 	// Set environment variable prefix
 	viper.SetEnvPrefix("HELLO_WORLD_CLI") // TODO: Replace with your app name in uppercase
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv()                  // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil && verbose {

@@ -20,7 +20,7 @@ func NewService(langService *language.Service) *Service {
 }
 
 // GenerateGreeting creates a greeting based on options
-func (s *Service) GenerateGreeting(opts GreetingOptions) (*Greeting, error) {
+func (s *Service) GenerateGreeting(opts Options) (*Greeting, error) {
 	greeting := &Greeting{
 		Timestamp: time.Now(),
 		Language:  opts.Language,
@@ -28,7 +28,7 @@ func (s *Service) GenerateGreeting(opts GreetingOptions) (*Greeting, error) {
 
 	// Get the appropriate greeting template
 	template := s.languageService.GetGreetingTemplate(opts.Language)
-	
+
 	// Generate the message
 	if opts.Name != "" {
 		greeting.Message = fmt.Sprintf(template, opts.Name)

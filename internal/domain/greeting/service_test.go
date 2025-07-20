@@ -11,21 +11,21 @@ func TestGenerateGreeting(t *testing.T) {
 	service := NewService(langService)
 
 	tests := []struct {
-		name     string
-		opts     GreetingOptions
-		wantMsg  string
-		wantErr  bool
+		name    string
+		opts    Options
+		wantMsg string
+		wantErr bool
 	}{
 		{
 			name: "basic hello world",
-			opts: GreetingOptions{
+			opts: Options{
 				Language: "en",
 			},
 			wantMsg: "Hello, World!",
 		},
 		{
 			name: "hello world with emoji",
-			opts: GreetingOptions{
+			opts: Options{
 				Language:     "en",
 				IncludeEmoji: true,
 			},
@@ -33,7 +33,7 @@ func TestGenerateGreeting(t *testing.T) {
 		},
 		{
 			name: "personalized greeting",
-			opts: GreetingOptions{
+			opts: Options{
 				Name:     "Alice",
 				Language: "en",
 			},
@@ -41,7 +41,7 @@ func TestGenerateGreeting(t *testing.T) {
 		},
 		{
 			name: "spanish greeting",
-			opts: GreetingOptions{
+			opts: Options{
 				Name:     "Carlos",
 				Language: "es",
 			},
@@ -49,7 +49,7 @@ func TestGenerateGreeting(t *testing.T) {
 		},
 		{
 			name: "japanese greeting with emoji",
-			opts: GreetingOptions{
+			opts: Options{
 				Name:         "Tanaka",
 				Language:     "ja",
 				IncludeEmoji: true,
@@ -58,7 +58,7 @@ func TestGenerateGreeting(t *testing.T) {
 		},
 		{
 			name: "unknown language falls back to english",
-			opts: GreetingOptions{
+			opts: Options{
 				Name:     "Test",
 				Language: "unknown",
 			},

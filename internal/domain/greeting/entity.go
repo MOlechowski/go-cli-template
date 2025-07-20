@@ -10,8 +10,8 @@ type Greeting struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// GreetingOptions configures how a greeting is generated
-type GreetingOptions struct {
+// Options configures how a greeting is generated
+type Options struct {
 	Name         string
 	Language     string
 	IncludeEmoji bool

@@ -3,9 +3,9 @@ package greet
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/go-cli-template/hello-world-cli/internal/domain/greeting"
-	"github.com/go-cli-template/hello-world-cli/internal/shared/utils"
+	"github.com/go-cli-template/hello-world-cli/internal/shared/json"
+	"github.com/spf13/cobra"
 )
 
 // Options holds command options
@@ -67,7 +67,7 @@ func runGreet(cmd *cobra.Command, greetingService *greeting.Service, opts *Optio
 	}
 
 	// Create greeting options
-	greetOpts := greeting.GreetingOptions{
+	greetOpts := greeting.Options{
 		Name:         opts.Name,
 		Language:     opts.Language,
 		IncludeEmoji: opts.IncludeEmoji,
@@ -81,7 +81,7 @@ func runGreet(cmd *cobra.Command, greetingService *greeting.Service, opts *Optio
 
 	// Output based on format
 	if opts.JSONOutput {
-		output, err := utils.PrettyPrintJSON(greet)
+		output, err := json.PrettyPrintJSON(greet)
 		if err != nil {
 			return fmt.Errorf("failed to format JSON: %w", err)
 		}
