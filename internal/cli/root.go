@@ -93,6 +93,11 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
+// IsDebug returns whether debug mode is enabled
+func IsDebug() bool {
+	return debug
+}
+
 func init() {
 	cobra.OnInitialize(initConfig)
 

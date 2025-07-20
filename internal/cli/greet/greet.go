@@ -2,8 +2,8 @@ package greet
 
 import (
 	"encoding/json"
-	"fmt"
 
+	"github.com/go-cli-template/hello-world-cli/internal/errors"
 	"github.com/go-cli-template/hello-world-cli/internal/greeting"
 	"github.com/go-cli-template/hello-world-cli/internal/logger"
 	"github.com/spf13/cobra"
@@ -77,7 +77,11 @@ func runGreet(cmd *cobra.Command, opts *Options) error {
 	// Validate name is provided
 	if opts.Name == "" {
 		log.Debug("name not provided")
-		return fmt.Errorf("name is required (use --name flag)")
+		return &errors.ValidationError{
+			Field:   "name",
+			Value:   opts.Name,
+			Message: "name is required",
+		}
 	}
 
 	// Create greeting options
@@ -100,7 +104,7 @@ func runGreet(cmd *cobra.Command, opts *Options) error {
 		output, err := json.MarshalIndent(greet, "", "  ")
 		if err != nil {
 			log.Error("failed to format JSON", "error", err)
-			return fmt.Errorf("failed to format JSON: %w", err)
+			return errors.Wrap(err, errors.CodeInternal, "failed to format JSON output")
 		}
 		cmd.Println(string(output))
 	} else {
