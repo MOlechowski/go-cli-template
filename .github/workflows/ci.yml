@@ -183,13 +183,13 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - os: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+          - os: ubuntu-latest
             test-type: full
             runner-type: ubuntu
-          - os: ${{ vars.MACOS_RUNNER || 'macos-latest' }}
+          - os: macos-latest
             test-type: essential
             runner-type: macos
-          - os: ${{ vars.WINDOWS_RUNNER || 'windows-latest' }}
+          - os: windows-latest
             test-type: essential  
             runner-type: windows
     steps:
@@ -275,10 +275,10 @@ jobs:
       - name: Cache Go build cache
         uses: actions/cache@v4
         with:
-          path: |\
+          path: |
             ~/.cache/go-build
             ~/Library/Caches/go-build
-            %LocalAppData%\\go-build
+            %LocalAppData%\go-build
           key: ${{ runner.os }}-go-build-release-${{ hashFiles('**/*.go', 'go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-build-release-
