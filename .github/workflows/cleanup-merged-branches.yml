@@ -1,0 +1,40 @@
+name: Cleanup Merged Branches
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Delete merged branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get branch name from the merged PR
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          REPO="${{ github.repository }}"
+          
+          # Skip deletion for main/master/develop branches
+          if [[ "$BRANCH_NAME" =~ ^(main|master|develop)$ ]]; then
+            echo "Skipping deletion of protected branch: $BRANCH_NAME"
+            exit 0
+          fi
+          
+          echo "Deleting merged branch: $BRANCH_NAME"
+          
+          # Delete the branch using GitHub API
+          curl -L \
+            -X DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPO/git/refs/heads/$BRANCH_NAME" \
+            || echo "Failed to delete branch (may already be deleted)"
+          
+          echo "Branch cleanup completed"
