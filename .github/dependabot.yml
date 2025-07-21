@@ -1,18 +1,45 @@
-# Dependabot configuration
-# Updates Go module dependencies weekly
-
 version: 2
+
 updates:
+  # Go dependencies
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "10:00"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps(dev)"
+      include: "scope"
+    reviewers:
+      - "MOlechowski"
     labels:
       - "dependencies"
-      - "automated"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
+      - "go"
+    # Group minor and patch updates to reduce PR noise
+    groups:
+      go-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    reviewers:
+      - "MOlechowski"
+    labels:
+      - "dependencies"
+      - "github-actions"
