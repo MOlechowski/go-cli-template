@@ -48,71 +48,10 @@ type slogLogger struct {
 
 // New creates a new logger with the given configuration
 func New(cfg Config) Logger {
-	var level slog.Level
-	switch strings.ToLower(cfg.Level) {
-	case "debug":
-		level = slog.LevelDebug
-		// Auto-enable source location for debug level
-		cfg.AddSource = true
-	case "info":
-		level = slog.LevelInfo
-	case "warn", "warning":
-		level = slog.LevelWarn
-	case "error":
-		level = slog.LevelError
-	default:
-		level = slog.LevelInfo
-	}
-
-	// Get current working directory for relative paths
-	wd, _ := os.Getwd()
-
-	// ReplaceAttr to show relative paths instead of absolute
-	replaceAttr := func(groups []string, a slog.Attr) slog.Attr {
-		if a.Key == slog.SourceKey && cfg.AddSource {
-			if source, ok := a.Value.Any().(*slog.Source); ok {
-				// Show relative path from working directory
-				if wd != "" {
-					if relPath, err := filepath.Rel(wd, source.File); err == nil {
-						source.File = relPath
-					}
-				}
-				// Remove function name to keep output concise
-				source.Function = ""
-			}
-		}
-		return a
-	}
-
-	opts := &slog.HandlerOptions{
-		Level:       level,
-		AddSource:   cfg.AddSource,
-		ReplaceAttr: replaceAttr,
-	}
-
-	var output *os.File
-	switch cfg.Output {
-	case "stdout":
-		output = os.Stdout
-	case "stderr":
-		output = os.Stderr
-	default:
-		output = os.Stderr
-	}
-
-	var handler slog.Handler
-	switch strings.ToLower(cfg.Format) {
-	case "json":
-		handler = slog.NewJSONHandler(output, opts)
-	case "text":
-		if cfg.NoColor || !isTerminal(output) {
-			handler = slog.NewTextHandler(output, opts)
-		} else {
-			handler = NewColorHandler(output, opts)
-		}
-	default:
-		handler = slog.NewTextHandler(output, opts)
-	}
+	level := parseLogLevel(cfg.Level, &cfg)
+	opts := createHandlerOptions(level, cfg)
+	output := getOutput(cfg.Output)
+	handler := createHandler(cfg, output, opts)
 
 	return &slogLogger{
 		logger: slog.New(handler),
@@ -171,6 +110,80 @@ func FromContext(ctx context.Context) Logger {
 		return logger
 	}
 	return New(DefaultConfig())
+}
+
+// parseLogLevel converts string level to slog.Level and handles debug special case
+func parseLogLevel(levelStr string, cfg *Config) slog.Level {
+	switch strings.ToLower(levelStr) {
+	case "debug":
+		// Auto-enable source location for debug level
+		cfg.AddSource = true
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn", "warning":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
+}
+
+// createHandlerOptions creates slog.HandlerOptions with source replacement
+func createHandlerOptions(level slog.Level, cfg Config) *slog.HandlerOptions {
+	// Get current working directory for relative paths
+	wd, _ := os.Getwd()
+
+	// ReplaceAttr to show relative paths instead of absolute
+	replaceAttr := func(groups []string, a slog.Attr) slog.Attr {
+		if a.Key == slog.SourceKey && cfg.AddSource {
+			if source, ok := a.Value.Any().(*slog.Source); ok {
+				// Show relative path from working directory
+				if wd != "" {
+					if relPath, err := filepath.Rel(wd, source.File); err == nil {
+						source.File = relPath
+					}
+				}
+				// Remove function name to keep output concise
+				source.Function = ""
+			}
+		}
+		return a
+	}
+
+	return &slog.HandlerOptions{
+		Level:       level,
+		AddSource:   cfg.AddSource,
+		ReplaceAttr: replaceAttr,
+	}
+}
+
+// getOutput returns the appropriate output file
+func getOutput(outputStr string) *os.File {
+	switch outputStr {
+	case "stdout":
+		return os.Stdout
+	case "stderr":
+		return os.Stderr
+	default:
+		return os.Stderr
+	}
+}
+
+// createHandler creates the appropriate slog.Handler based on configuration
+func createHandler(cfg Config, output *os.File, opts *slog.HandlerOptions) slog.Handler {
+	switch strings.ToLower(cfg.Format) {
+	case "json":
+		return slog.NewJSONHandler(output, opts)
+	case "text":
+		if cfg.NoColor || !isTerminal(output) {
+			return slog.NewTextHandler(output, opts)
+		}
+		return NewColorHandler(output, opts)
+	default:
+		return slog.NewTextHandler(output, opts)
+	}
 }
 
 // WithContext returns a new context with the logger attached
