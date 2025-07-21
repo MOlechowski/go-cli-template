@@ -17,3 +17,10 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
+
+---
+
+**🤖 Need AI Implementation Help?**
+- Mention **@claude** to get AI-powered implementation assistance
+- Claude can generate code following the project's RULES-GO.md standards
+- Provide detailed requirements for better implementation suggestions

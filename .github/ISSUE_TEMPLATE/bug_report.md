@@ -31,3 +31,10 @@ If applicable, add screenshots or log output to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+
+---
+
+**🤖 Need AI Help?**
+- Mention **@claude** in this issue to get AI-powered debugging assistance
+- Claude can analyze the bug pattern and suggest fixes
+- Include specific error messages and stack traces for better analysis
