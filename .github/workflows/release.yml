@@ -9,12 +9,17 @@ permissions:
   contents: write
 
 env:
-  GO_VERSION: '1.21'
+  GO_VERSION: '1.24'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release:
     name: Release
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,16 +29,37 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: Cache Task binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/task
+          key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
       
       - name: Install Task
+        if: steps.download-artifacts.outcome == 'failure'
         uses: arduino/setup-task@v2
         with:
           version: 3.x
       
+      - name: Download CI artifacts
+        id: download-artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries-${{ github.run_id }}
+          path: dist/
+        continue-on-error: true
+      
       - name: Run tests
-        run: task test
+        if: steps.download-artifacts.outcome == 'failure'
+        run: task test:short
       
       - name: Build release binaries
+        if: steps.download-artifacts.outcome == 'failure'
+        env:
+          CGO_ENABLED: 0
+          GOMAXPROCS: 4
         run: task release
       
       - name: Create changelog

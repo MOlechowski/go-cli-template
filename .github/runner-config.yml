@@ -1,0 +1,47 @@
+# GitHub Actions Runner Configuration
+# This file can be used to switch between GitHub-hosted and third-party runners
+
+# Default GitHub-hosted runners
+github:
+  ubuntu: ubuntu-latest
+  macos: macos-latest  
+  windows: windows-latest
+
+# Third-party runner examples (uncomment and configure as needed)
+
+# RunsOn configuration
+# runson:
+#   ubuntu: [self-hosted, linux, x64, runson]
+#   macos: [self-hosted, macos, arm64, runson]
+#   windows: [self-hosted, windows, x64, runson]
+
+# Blacksmith configuration  
+# blacksmith:
+#   ubuntu: [self-hosted, linux, x64, blacksmith]
+#   macos: [self-hosted, macos, arm64, blacksmith]
+#   windows: [self-hosted, windows, x64, blacksmith]
+
+# Self-hosted runners
+# selfhosted:
+#   ubuntu: [self-hosted, linux, x64]
+#   macos: [self-hosted, macos, arm64]
+#   windows: [self-hosted, windows, x64]
+
+# Usage Notes:
+# 1. To use third-party runners, update the environment variables in your workflow
+# 2. Set UBUNTU_RUNNER, MACOS_RUNNER, WINDOWS_RUNNER to the appropriate runner labels
+# 3. Example for RunsOn:
+#    - UBUNTU_RUNNER: "[self-hosted, linux, x64, runson]"
+#    - MACOS_RUNNER: "[self-hosted, macos, arm64, runson]"  
+#    - WINDOWS_RUNNER: "[self-hosted, windows, x64, runson]"
+
+# Cost Optimization Notes:
+# - Third-party runners typically provide 90% cost savings
+# - Cache performance is 4-10x faster with RunsOn/Blacksmith
+# - Setup time is minimal (2-10 minutes)
+# - Professional support and SLAs included
+
+# Migration Path:
+# 1. Phase 1: Start with ubuntu runners for testing
+# 2. Phase 2: Migrate high-usage workflows  
+# 3. Phase 3: Full migration based on results

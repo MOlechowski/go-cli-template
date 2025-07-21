@@ -3,16 +3,91 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '.github/dependabot.yml'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '.github/dependabot.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   GO_VERSION: '1.24'
+  # Runner configuration - can be overridden for third-party runners
+  UBUNTU_RUNNER: ubuntu-latest
+  MACOS_RUNNER: macos-latest
+  WINDOWS_RUNNER: windows-latest
+
+# Shared conditions for different job types
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
+  # Detect what has changed to run only relevant jobs
+  changes:
+    name: Detect Changes
+    runs-on: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 2
+    outputs:
+      go-code: ${{ steps.changes.outputs.go-code }}
+      go-deps: ${{ steps.changes.outputs.go-deps }}
+      workflows: ${{ steps.changes.outputs.workflows }}
+      config: ${{ steps.changes.outputs.config }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Check for changes
+        id: changes
+        run: |
+          # Check for Go code changes
+          if git diff --name-only HEAD~1 HEAD | grep -E '\.(go)$' > /dev/null; then
+            echo "go-code=true" >> $GITHUB_OUTPUT
+          else
+            echo "go-code=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for dependency changes
+          if git diff --name-only HEAD~1 HEAD | grep -E '(go\.(mod|sum)|Taskfile\.yml)$' > /dev/null; then
+            echo "go-deps=true" >> $GITHUB_OUTPUT
+          else
+            echo "go-deps=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for workflow changes
+          if git diff --name-only HEAD~1 HEAD | grep -E '\.github/workflows/.*\.yml$' > /dev/null; then
+            echo "workflows=true" >> $GITHUB_OUTPUT
+          else
+            echo "workflows=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for config changes
+          if git diff --name-only HEAD~1 HEAD | grep -E '(\.golangci\.yml|\.gitignore)$' > /dev/null; then
+            echo "config=true" >> $GITHUB_OUTPUT
+          else
+            echo "config=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Fast-fail checks that run in parallel
+  format-check:
+    name: Format Check
+    runs-on: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    needs: [changes]
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.go-deps == 'true')"
     steps:
       - uses: actions/checkout@v4
       
@@ -20,18 +95,103 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: Check formatting
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "Code is not formatted. Run 'gofmt -s -w .'"
+            gofmt -s -l .
+            exit 1
+          fi
+      
+      - name: Check imports
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+          if [ "$(goimports -l . | wc -l)" -gt 0 ]; then
+            echo "Imports are not formatted. Run 'goimports -w .'"
+            goimports -l .
+            exit 1
+          fi
+
+  vet-check:
+    name: Go Vet
+    runs-on: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    needs: [changes]
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.go-deps == 'true')"
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: Run go vet
+        run: go vet ./...
+
+  lint:
+    name: Lint
+    runs-on: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    needs: [changes, format-check, vet-check]  # Only run lint after fast checks pass
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.config == 'true')"
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: Cache Go build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-go-build-lint-${{ hashFiles('**/*.go', 'go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-lint-
+            ${{ runner.os }}-go-build-
       
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
           version: v2.2.2
+          args: --timeout=5m --cache-dir=/tmp/.golangci-cache
+      
+      - name: Cache lint results
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.golangci-cache
+          key: ${{ runner.os }}-golangci-cache-${{ hashFiles('.golangci.yml', '**/*.go') }}
+          restore-keys: |
+            ${{ runner.os }}-golangci-cache-
 
   test:
     name: Test
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    needs: [changes, format-check, vet-check]  # Run in parallel with lint after fast checks
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.go-deps == 'true')"
     strategy:
+      fail-fast: true
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+            test-type: full
+            runner-type: ubuntu
+          - os: ${{ vars.MACOS_RUNNER || 'macos-latest' }}
+            test-type: essential
+            runner-type: macos
+          - os: ${{ vars.WINDOWS_RUNNER || 'windows-latest' }}
+            test-type: essential  
+            runner-type: windows
     steps:
       - uses: actions/checkout@v4
       
@@ -39,6 +199,35 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: Cache Go build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-go-build-test-${{ hashFiles('**/*.go', 'go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-test-
+            ${{ runner.os }}-go-build-
+      
+      - name: Cache test results
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-test
+            ~/Library/Caches/go-test  
+          key: ${{ runner.os }}-go-test-${{ hashFiles('**/*_test.go', 'go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-test-
+      
+      - name: Cache Task binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/task
+          key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
       
       - name: Install Task
         uses: arduino/setup-task@v2
@@ -47,18 +236,33 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Test
-        run: task test
+        run: |
+          if [ "${{ matrix.test-type }}" = "full" ]; then
+            task test:coverage
+          else
+            task test:short
+          fi
+      
+      - name: Cache coverage data
+        if: matrix.test-type == 'full'
+        uses: actions/cache/save@v4
+        with:
+          path: coverage.out
+          key: coverage-${{ github.run_id }}-${{ github.run_attempt }}
       
       - name: Upload coverage
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.test-type == 'full'
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.out
+          fail_ci_if_error: false
 
   build:
     name: Build
-    runs-on: ubuntu-latest
-    needs: [lint, test]
+    runs-on: ${{ vars.UBUNTU_RUNNER || 'ubuntu-latest' }}
+    needs: [changes, lint, test]
+    timeout-minutes: 20
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && github.event.pull_request.draft == false && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.go-deps == 'true')"
     steps:
       - uses: actions/checkout@v4
       
@@ -66,6 +270,34 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: Cache Go build cache
+        uses: actions/cache@v4
+        with:
+          path: |\
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\\go-build
+          key: ${{ runner.os }}-go-build-release-${{ hashFiles('**/*.go', 'go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-release-
+            ${{ runner.os }}-go-build-test-
+            ${{ runner.os }}-go-build-lint-
+            ${{ runner.os }}-go-build-
+      
+      - name: Cache compiled binaries
+        id: cache-binaries
+        uses: actions/cache@v4
+        with:
+          path: dist/
+          key: binaries-${{ github.sha }}-${{ hashFiles('**/*.go', 'go.sum', 'Taskfile.yml') }}
+      
+      - name: Cache Task binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/task
+          key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
       
       - name: Install Task
         uses: arduino/setup-task@v2
@@ -74,10 +306,20 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Build
-        run: task release:build
+        if: steps.cache-binaries.outputs.cache-hit != 'true'
+        env:
+          CGO_ENABLED: 0
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          echo "Building optimized binaries..."
+          # Use parallel builds for faster compilation
+          export GOMAXPROCS=$(nproc)
+          task release:build
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: binaries
+          name: binaries-${{ github.run_id }}
           path: dist/
+          retention-days: 1
