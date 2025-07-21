@@ -971,5 +971,5 @@ Remember: "Clear is better than clever" - The Go Proverb
 
 ---
 
-*Last updated: January 2025*
+*Last updated: $(date '+%B %Y')*
 *Version: 1.0.0*
