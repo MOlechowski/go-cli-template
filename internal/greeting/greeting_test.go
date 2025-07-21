@@ -31,7 +31,7 @@ func TestGenerate(t *testing.T) {
 				Name:     "Alice",
 				Language: "en",
 			},
-			wantMsg: "Hello, Alice!",
+			wantMsg: "Hello there, Alice! 🎉",
 		},
 		{
 			name: "spanish greeting",
@@ -56,7 +56,7 @@ func TestGenerate(t *testing.T) {
 				Name:     "Test",
 				Language: "unknown",
 			},
-			wantMsg: "Hello, Test!",
+			wantMsg: "Hello there, Test! 🎉",
 		},
 	}
 

@@ -162,8 +162,8 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.2.2
-          args: --timeout=5m --cache-dir=/tmp/.golangci-cache
+          version: latest
+          args: --timeout=5m
       
       - name: Cache lint results
         uses: actions/cache@v4
