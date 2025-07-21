@@ -26,7 +26,7 @@ var translations = map[string]struct {
 	hello    string
 	emoji    string
 }{
-	"en": {"Hello, %s!", "Hello, World!", "👋"},
+	"en": {"Hello there, %s! 🎉", "Hello, World!", "👋"},
 	"es": {"¡Hola, %s!", "¡Hola, Mundo!", "👋"},
 	"fr": {"Bonjour, %s!", "Bonjour le monde!", "👋"},
 	"de": {"Hallo, %s!", "Hallo, Welt!", "👋"},
