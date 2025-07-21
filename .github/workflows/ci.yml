@@ -17,6 +17,7 @@ on:
       - '.gitignore'
       - 'LICENSE'
       - '.github/dependabot.yml'
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,6 +29,10 @@ env:
   UBUNTU_RUNNER: ubuntu-latest
   MACOS_RUNNER: macos-latest
   WINDOWS_RUNNER: windows-latest
+  # Cache optimization settings
+  CACHE_VERSION: v2
+  GOPROXY: https://proxy.golang.org,direct
+  GOSUMDB: sum.golang.org
 
 # Shared conditions for different job types
 defaults:
