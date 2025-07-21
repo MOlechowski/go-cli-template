@@ -42,14 +42,19 @@ jobs:
           
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
+            **Go CLI Project Code Review**
+            Review Date: $(date '+%B %d, %Y at %H:%M UTC')
+            
+            Please review this pull request focusing on:
+            - Go language best practices and idioms
+            - Code quality per RULES-GO.md standards
             - Potential bugs or issues
             - Performance considerations
-            - Security concerns
-            - Test coverage
+            - Security concerns (especially CLI input validation)
+            - Test coverage and patterns
+            - CLI usability and error handling
             
-            Be constructive and helpful in your feedback.
+            Be constructive and provide specific Go-focused recommendations.
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           # use_sticky_comment: true
