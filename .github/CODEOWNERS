@@ -1,0 +1,16 @@
+# CODEOWNERS file - Defines code ownership for pull request reviews
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Repository settings and security-sensitive files require admin review
+/.github/settings.yml @MOlechowski
+/.github/CODEOWNERS @MOlechowski
+
+# Security-sensitive workflow files
+/.github/workflows/ @MOlechowski
+
+# Go mod files (dependency security)
+go.mod @MOlechowski
+go.sum @MOlechowski
+
+# All other files can be reviewed by maintainers
+* @MOlechowski

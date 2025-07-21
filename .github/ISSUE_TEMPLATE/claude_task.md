@@ -2,7 +2,7 @@
 name: Claude Code Task
 about: Request Claude to help with code implementation, review, or improvement
 title: '@claude '
-labels: claude-ai, enhancement
+labels: claude-ai, type:feature, status:triage
 assignees: ''
 ---
 

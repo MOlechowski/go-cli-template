@@ -39,6 +39,8 @@ This template includes:
 
 ### After Creating from Template
 
+⚠️ **Security Note**: This template uses Probot Settings app for automated repository management. The `.github/CODEOWNERS` file protects sensitive configuration files, but ensure you review all PRs that modify `.github/settings.yml` carefully.
+
 1. **Update Repository Information**
    ```bash
    # Update go.mod with your module path
