@@ -46,7 +46,7 @@ jobs:
       workflows: ${{ steps.changes.outputs.workflows }}
       config: ${{ steps.changes.outputs.config }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
       
@@ -89,7 +89,7 @@ jobs:
     needs: [changes]
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.go-deps == 'true')"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -121,7 +121,7 @@ jobs:
     needs: [changes]
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.go-deps == 'true')"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -139,7 +139,7 @@ jobs:
     needs: [changes, format-check, vet-check]  # Only run lint after fast checks pass
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.config == 'true')"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -193,7 +193,7 @@ jobs:
             test-type: essential  
             runner-type: windows
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -264,7 +264,7 @@ jobs:
     timeout-minutes: 20
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]') && github.event.pull_request.draft == false && (needs.changes.outputs.go-code == 'true' || needs.changes.outputs.go-deps == 'true')"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Set up Go
         uses: actions/setup-go@v6
