@@ -32,7 +32,7 @@ jobs:
           cache: true
       
       - name: Cache Task binary
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.local/share/task
           key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}

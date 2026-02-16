@@ -148,7 +148,7 @@ jobs:
           cache: true
       
       - name: Cache Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build
@@ -166,7 +166,7 @@ jobs:
           args: --timeout=5m
       
       - name: Cache lint results
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/.golangci-cache
           key: ${{ runner.os }}-golangci-cache-${{ hashFiles('.golangci.yml', '**/*.go') }}
@@ -202,7 +202,7 @@ jobs:
           cache: true
       
       - name: Cache Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build
@@ -214,7 +214,7 @@ jobs:
             ${{ runner.os }}-go-build-
       
       - name: Cache test results
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-test
@@ -224,7 +224,7 @@ jobs:
             ${{ runner.os }}-go-test-
       
       - name: Cache Task binary
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.local/share/task
           key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
@@ -245,7 +245,7 @@ jobs:
       
       - name: Cache coverage data
         if: matrix.test-type == 'full'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: coverage.out
           key: coverage-${{ github.run_id }}-${{ github.run_attempt }}
@@ -273,7 +273,7 @@ jobs:
           cache: true
       
       - name: Cache Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build
@@ -288,13 +288,13 @@ jobs:
       
       - name: Cache compiled binaries
         id: cache-binaries
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: dist/
           key: binaries-${{ github.sha }}-${{ hashFiles('**/*.go', 'go.sum', 'Taskfile.yml') }}
       
       - name: Cache Task binary
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.local/share/task
           key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
