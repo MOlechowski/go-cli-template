@@ -61,7 +61,7 @@ jobs:
           fi
           
           # Check for dependency changes
-          if git diff --name-only HEAD~1 HEAD | grep -E '(go\.(mod|sum)|Taskfile\.yml)$' > /dev/null; then
+          if git diff --name-only HEAD~1 HEAD | grep -E '(go\.(mod|sum)|mise-tasks/|\.mise.*\.toml|mise.*\.lock)$' > /dev/null; then
             echo "go-deps=true" >> $GITHUB_OUTPUT
           else
             echo "go-deps=false" >> $GITHUB_OUTPUT
@@ -223,24 +223,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-test-
       
-      - name: Cache Task binary
-        uses: actions/cache@v5
-        with:
-          path: ~/.local/share/task
-          key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
-      
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up mise
+        uses: jdx/mise-action@v3
       
       - name: Test
         run: |
           if [ "${{ matrix.test-type }}" = "full" ]; then
-            task test:coverage
+            mise run test:coverage
           else
-            task test:short
+            mise run test:short
           fi
       
       - name: Cache coverage data
@@ -291,19 +282,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: dist/
-          key: binaries-${{ github.sha }}-${{ hashFiles('**/*.go', 'go.sum', 'Taskfile.yml') }}
+          key: binaries-${{ github.sha }}-${{ hashFiles('**/*.go', 'go.sum', 'mise-tasks/**') }}
       
-      - name: Cache Task binary
-        uses: actions/cache@v5
-        with:
-          path: ~/.local/share/task
-          key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
-      
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up mise
+        uses: jdx/mise-action@v3
       
       - name: Build
         if: steps.cache-binaries.outputs.cache-hit != 'true'
@@ -315,7 +297,7 @@ jobs:
           echo "Building optimized binaries..."
           # Use parallel builds for faster compilation
           export GOMAXPROCS=$(nproc)
-          task release:build
+          mise run release:build:default
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v5

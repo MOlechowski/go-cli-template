@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Show dependency graph"
+set -euo pipefail
+
+go mod graph

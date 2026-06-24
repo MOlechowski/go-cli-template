@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Run tests with coverage"
+set -euo pipefail
+
+go test -v -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out -o coverage.html
+echo "Coverage report generated at coverage.html"

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Install development tools"
+set -euo pipefail
+
+echo "Installing development tools..."
+go install github.com/air-verse/air@latest
+go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+go install mvdan.cc/gofumpt@latest
+go install golang.org/x/tools/cmd/godoc@latest
+echo "Tools installed successfully"

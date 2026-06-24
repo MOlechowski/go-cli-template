@@ -14,7 +14,7 @@ A simple hello world CLI demonstrating Go + Cobra with enterprise-ready structur
 - 🌍 **Internationalization** - Support for multiple languages (EN, ES, FR, DE, JA, ZH)
 - 📝 **Multiple output formats** - Plain text and JSON output
 - 🧪 **Comprehensive testing** - Unit tests with good coverage
-- 🔧 **Modern tooling** - Task automation, hot reload, and CI/CD
+- 🔧 **Modern tooling** - automation with mise, hot reload, and CI/CD
 
 ## Installation
 
@@ -29,7 +29,7 @@ go install github.com/go-cli-template/hello-world-cli@latest
 ```bash
 git clone https://github.com/go-cli-template/hello-world-cli.git
 cd hello-world-cli
-task build
+mise run build:default
 ```
 
 ## Usage
@@ -87,28 +87,28 @@ $ hello-world-cli hello --json
 ### Prerequisites
 
 - Go 1.21 or later
-- Task (see [installation](https://taskfile.dev/installation/))
+- [mise](https://mise.jdx.dev/)
 
 ### Common Tasks
 
 ```bash
 # Run with hot reload
-task dev
+mise run dev:default
 
 # Run tests
-task test
+mise run test:default
 
 # Build binary
-task build
+mise run build:default
 
 # Run linter
-task lint
+mise run lint:default
 
 # Build for all platforms
-task release:build
+mise run release:build:default
 
 # Format, fix, and lint all code
-task fix
+mise run fix:default
 ```
 
 ### Project Structure

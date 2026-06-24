@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#MISE description="Format, fix, and lint all code"
+set -euo pipefail
+
+mise run install-tools:default
+echo "🔧 Formatting code..."
+go fmt ./...
+gofumpt -w .
+goimports -w .
+echo "🔧 Running auto-fix..."
+golangci-lint run --fix --timeout=5m
+echo "🔍 Running final lint check..."
+golangci-lint run --timeout=5m
+echo "✅ Done! Check output above for any remaining issues."

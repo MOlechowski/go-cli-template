@@ -87,7 +87,7 @@ your-new-cli/
 ├── .golangci.yml          # Comprehensive linting config
 ├── CLAUDE.md             # AI assistant context
 ├── RULES-GO.md           # Go coding standards
-└── Taskfile.yml          # Build automation
+└── mise-tasks/**          # Build automation
 ```
 
 ## 🤖 Working with Claude

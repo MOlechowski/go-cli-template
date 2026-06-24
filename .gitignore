@@ -46,8 +46,8 @@ tmp/
 *.secret.yml
 
 # Build artifacts
-build/
-release/
+/build/
+/release/
 
 # Log files
 *.log

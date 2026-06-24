@@ -30,7 +30,7 @@ Replace these strings throughout the codebase:
    module github.com/your-username/your-app-name
    ```
 
-2. **Taskfile.yml**: Update binary name and paths
+2. **mise-tasks/**: Update binary name and paths
 3. **.gitignore**: Update app-specific config file names
 4. **README.md**: Update with your project information
 
@@ -123,7 +123,7 @@ Add tests alongside your code:
 - `yourcommand.go` → `yourcommand_test.go`
 - `service.go` → `service_test.go`
 
-Run tests with: `task test`
+Run tests with: `mise run test:default`
 
 ## CI/CD
 

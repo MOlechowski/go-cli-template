@@ -27,8 +27,4 @@ trim_trailing_whitespace = false
 # Makefile
 [Makefile]
 indent_style = tab
-
-# Taskfile
-[Taskfile.yml]
-indent_style = space
 indent_size = 2

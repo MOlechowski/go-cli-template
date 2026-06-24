@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Run linter with auto-fix"
+set -euo pipefail
+
+mise run install-tools:default
+golangci-lint run --fix --timeout=5m

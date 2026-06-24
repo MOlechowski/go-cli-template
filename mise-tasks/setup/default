@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Install dev tools"
+#MISE depends=["install-tools:default"]
+set -euo pipefail

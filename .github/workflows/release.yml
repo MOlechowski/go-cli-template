@@ -31,17 +31,8 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
       
-      - name: Cache Task binary
-        uses: actions/cache@v5
-        with:
-          path: ~/.local/share/task
-          key: ${{ runner.os }}-task-${{ hashFiles('Taskfile.yml') }}
-      
-      - name: Install Task
-        if: steps.download-artifacts.outcome == 'failure'
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
+      - name: Set up mise
+        uses: jdx/mise-action@v3
       
       - name: Download CI artifacts
         id: download-artifacts
@@ -53,14 +44,14 @@ jobs:
       
       - name: Run tests
         if: steps.download-artifacts.outcome == 'failure'
-        run: task test:short
+        run: mise run test:short
       
       - name: Build release binaries
         if: steps.download-artifacts.outcome == 'failure'
         env:
           CGO_ENABLED: 0
           GOMAXPROCS: 4
-        run: task release
+        run: mise run release:build:default
       
       - name: Create changelog
         id: changelog

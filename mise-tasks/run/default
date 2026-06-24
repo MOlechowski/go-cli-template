@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Build and run"
+set -euo pipefail
+
+mise run build:default
+./bin/hello-world-cli ${CLI_ARGS:-}

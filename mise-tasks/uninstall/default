@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Uninstall binary from $GOPATH/bin"
+set -euo pipefail
+
+rm -f $GOPATH/bin/hello-world-cli
