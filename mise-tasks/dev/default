@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Run with hot reload (requires air)"
+set -euo pipefail
+
+mise run install-tools:default
+air

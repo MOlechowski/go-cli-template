@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Build the binary"
+set -euo pipefail
+
+VERSION="$(git describe --tags --always --dirty 2>/dev/null || echo "dev")"
+BUILD_TIME="$(date -u '+%Y-%m-%d_%H:%M:%S')"
+LDFLAGS="-X github.com/go-cli-template/hello-world-cli/pkg/version.Version=${VERSION} -X github.com/go-cli-template/hello-world-cli/pkg/version.BuildTime=${BUILD_TIME}"
+
+mkdir -p bin
+go build -ldflags "${LDFLAGS}" -o bin/hello-world-cli cmd/hello-world-cli/main.go

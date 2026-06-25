@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Run all checks (test, lint, vet)"
+#MISE depends=["test:default", "lint:default", "vet:default"]
+set -euo pipefail

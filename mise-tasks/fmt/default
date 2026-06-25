@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Format all Go code"
+set -euo pipefail
+
+go fmt ./...
+gofumpt -l -w .

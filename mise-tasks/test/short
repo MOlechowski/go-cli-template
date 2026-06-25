@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Run tests in short mode"
+set -euo pipefail
+
+go test -short -v ./...

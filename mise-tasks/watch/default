@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Alternative to dev using go run"
+set -euo pipefail
+
+watch -n 2 go run cmd/hello-world-cli/main.go

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Run all CI checks (format, lint, test)"
+#MISE depends=["fix:default", "test:default"]
+set -euo pipefail

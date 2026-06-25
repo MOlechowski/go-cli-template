@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Build for all platforms"
+#MISE depends=["release:build:darwin", "release:build:linux", "release:build:windows"]
+set -euo pipefail
